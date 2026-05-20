@@ -11,6 +11,30 @@ const inputDuration = document.querySelector(".form__input--duration");
 const inputCadence = document.querySelector(".form__input--cadence");
 const inputElevation = document.querySelector(".form__input--elevation");
 
+let html;
+html += `<li class="workout workout--cycling" data-id="1234567891">
+<h2 class="workout__title">Cycling on April 5</h2>
+<div class="workout__details">
+  <span class="workout__icon">🚴‍♀️</span>
+  <span class="workout__value">27</span>
+  <span class="workout__unit">km</span>
+</div>
+<div class="workout__details">
+  <span class="workout__icon">⏱</span>
+  <span class="workout__value">95</span>
+  <span class="workout__unit">min</span>
+</div>
+<div class="workout__details">
+  <span class="workout__icon">⚡️</span>
+  <span class="workout__value">16</span>
+  <span class="workout__unit">km/h</span>
+</div>
+<div class="workout__details">
+  <span class="workout__icon">⛰</span>
+  <span class="workout__value">223</span>
+  <span class="workout__unit">m</span>
+</div>
+</li>`;
 let map;
 let mapEvent;
 let workouts = [];
@@ -25,9 +49,22 @@ class Workout {
   }
 }
 class Running extends Workout {
+  type = "Running";
+
   constructor(coords, distance, duration, cadence) {
     super(coords, distance, duration);
     this.cadence = cadence;
+    this.calcPace();
+    this.setDescription();
+  }
+
+  calcPace() {
+    this.pace = this.duration / this.distance;
+    return this.pace;
+  }
+
+  setDescription() {
+    this.description = `${this.type} on ${this.date.toDateString()}`;
   }
 }
 class Cycling extends Workout {
@@ -71,6 +108,29 @@ form.addEventListener("submit", function (e) {
   let workout;
 
   if (type === "running") {
+    html = `<li class="workout workout--running" data-id=${workout.id}>
+  <h2 class="workout__title">${workout.description}Running on April 14</h2>
+  <div class="workout__details">
+    <span class="workout__icon">🏃‍♂️</span>
+    <span class="workout__value">${workout.distance}</span>
+    <span class="workout__unit">km</span>
+  </div>
+  <div class="workout__details">
+    <span class="workout__icon">⏱</span>
+    <span class="workout__value">${workout.duration}</span>
+    <span class="workout__unit">min</span>
+  </div>
+  <div class="workout__details">
+    <span class="workout__icon">⚡️</span>
+    <span class="workout__value">${workout.pace}</span>
+    <span class="workout__unit">min/km</span>
+  </div>
+  <div class="workout__details">
+    <span class="workout__icon">🦶🏼</span>
+    <span class="workout__value">${workout.cadence}</span>
+    <span class="workout__unit">spm</span>
+  </div>
+  </li>`;
     const cadence = Number(inputCadence.value);
 
     workout = new Running([lat, lng], distance, duration, cadence);
@@ -80,9 +140,9 @@ form.addEventListener("submit", function (e) {
 
     workout = new Cycling([lat, lng], distance, duration, elevation);
   }
-
   workouts.push(workout);
-  console.log(workouts);
+  form.insertAdjacentHTML("afterend", html);
+
   L.marker([lat, lng])
     .addTo(map)
     .bindPopup(
