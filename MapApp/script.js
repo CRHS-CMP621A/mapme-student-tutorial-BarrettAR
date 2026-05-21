@@ -11,30 +11,6 @@ const inputDuration = document.querySelector(".form__input--duration");
 const inputCadence = document.querySelector(".form__input--cadence");
 const inputElevation = document.querySelector(".form__input--elevation");
 
-let html;
-html += `<li class="workout workout--cycling" data-id="1234567891">
-<h2 class="workout__title">Cycling on April 5</h2>
-<div class="workout__details">
-  <span class="workout__icon">🚴‍♀️</span>
-  <span class="workout__value">27</span>
-  <span class="workout__unit">km</span>
-</div>
-<div class="workout__details">
-  <span class="workout__icon">⏱</span>
-  <span class="workout__value">95</span>
-  <span class="workout__unit">min</span>
-</div>
-<div class="workout__details">
-  <span class="workout__icon">⚡️</span>
-  <span class="workout__value">16</span>
-  <span class="workout__unit">km/h</span>
-</div>
-<div class="workout__details">
-  <span class="workout__icon">⛰</span>
-  <span class="workout__value">223</span>
-  <span class="workout__unit">m</span>
-</div>
-</li>`;
 let map;
 let mapEvent;
 let workouts = [];
@@ -68,11 +44,22 @@ class Running extends Workout {
   }
 }
 class Cycling extends Workout {
+  type = "Cycling";
   constructor(coords, distance, duration, elevationGain) {
     super(coords, distance, duration);
     this.elevation = elevationGain;
+    this.setDescription();
+    this.calcSpeed();
+  }
+  setDescription() {
+    this.description = `${this.type} on ${this.date.toDateString()}`;
+  }
+  calcSpeed() {
+    this.speed = ((this.distance / this.duration) * 60).toFixed(2);
+    return this.speed;
   }
 }
+let html;
 
 navigator.geolocation.getCurrentPosition(function (position) {
   const latitude = position.coords.latitude;
@@ -108,8 +95,11 @@ form.addEventListener("submit", function (e) {
   let workout;
 
   if (type === "running") {
+    const cadence = Number(inputCadence.value);
+    workout = new Running([lat, lng], distance, duration, cadence);
+
     html = `<li class="workout workout--running" data-id=${workout.id}>
-  <h2 class="workout__title">${workout.description}Running on April 14</h2>
+  <h2 class="workout__title">${workout.description}</h2>
   <div class="workout__details">
     <span class="workout__icon">🏃‍♂️</span>
     <span class="workout__value">${workout.distance}</span>
@@ -131,14 +121,34 @@ form.addEventListener("submit", function (e) {
     <span class="workout__unit">spm</span>
   </div>
   </li>`;
-    const cadence = Number(inputCadence.value);
-
-    workout = new Running([lat, lng], distance, duration, cadence);
   }
   if (type === "cycling") {
     const elevation = +inputElevation.value;
-
     workout = new Cycling([lat, lng], distance, duration, elevation);
+
+    html = `<li class="workout workout--cycling" data-id=${workout.id}>
+   <h2 class="workout__title">${workout.description}</h2>
+   <div class="workout__details">
+     <span class="workout__icon">🚴‍♀️</span>
+     <span class="workout__value">${workout.distance}</span>
+     <span class="workout__unit">km</span>
+   </div>
+   <div class="workout__details">
+     <span class="workout__icon">⏱</span>
+     <span class="workout__value">${workout.duration}</span>
+     <span class="workout__unit">min</span>
+   </div>
+   <div class="workout__details">
+     <span class="workout__icon">⚡️</span>
+     <span class="workout__value">${workout.speed}</span>
+     <span class="workout__unit">km/h</span>
+   </div>
+   <div class="workout__details">
+     <span class="workout__icon">⛰</span>
+     <span class="workout__value">${workout.elevation}</span>
+     <span class="workout__unit">m</span>
+   </div>
+   </li>`;
   }
   workouts.push(workout);
   form.insertAdjacentHTML("afterend", html);
