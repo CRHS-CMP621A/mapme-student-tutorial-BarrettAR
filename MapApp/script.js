@@ -72,6 +72,13 @@ navigator.geolocation.getCurrentPosition(function (position) {
       '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
   }).addTo(map);
 
+  const data = JSON.parse(localStorage.getItem("workouts"));
+
+  if (data) {
+    workouts = data;
+    console.log(data);
+  }
+
   L.marker(coords)
     .addTo(map)
     .bindPopup("A pretty CSS popup.<br> Easily customizable.")
@@ -153,6 +160,8 @@ form.addEventListener("submit", function (e) {
   workouts.push(workout);
   form.insertAdjacentHTML("afterend", html);
 
+  localStorage.setItem("workouts", JSON.stringify(workouts));
+
   L.marker([lat, lng])
     .addTo(map)
     .bindPopup(
@@ -176,4 +185,19 @@ form.addEventListener("submit", function (e) {
 inputType.addEventListener("change", function () {
   inputCadence.closest(".form__row").classList.toggle("form__row--hidden");
   inputElevation.closest(".form__row").classList.toggle("form__row--hidden");
+});
+
+containerWorkouts.addEventListener("click", function (e) {
+  const workoutEl = e.target.closest(".workout");
+
+  const workout = workouts.find((work) => work.id === workoutEl.dataset.id);
+
+  if (!workoutEl) return;
+
+  map.setView(workout.coords, 13, {
+    animate: true,
+    pan: {
+      duration: 1,
+    },
+  });
 });
