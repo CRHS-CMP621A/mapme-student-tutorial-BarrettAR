@@ -25,7 +25,7 @@ class Workout {
   }
 }
 class Running extends Workout {
-  type = "Running";
+  type = "running";
 
   constructor(coords, distance, duration, cadence) {
     super(coords, distance, duration);
@@ -44,7 +44,7 @@ class Running extends Workout {
   }
 }
 class Cycling extends Workout {
-  type = "Cycling";
+  type = "cycling";
   constructor(coords, distance, duration, elevationGain) {
     super(coords, distance, duration);
     this.elevation = elevationGain;
@@ -78,7 +78,87 @@ navigator.geolocation.getCurrentPosition(function (position) {
     workouts = data;
     console.log(data);
   }
+  for (let workout of workouts) {
+    let lat = workout.coords[0];
+    let lng = workout.coords[1];
+    if (workout.type === "running") {
+      html = `<li class="workout workout--running" data-id=${workout.id}>
+    <h2 class="workout__title">${workout.description}</h2>
+    <div class="workout__details">
+      <span class="workout__icon">🏃‍♂️</span>
+      <span class="workout__value">${workout.distance}</span>
+      <span class="workout__unit">km</span>
+    </div>
+    <div class="workout__details">
+      <span class="workout__icon">⏱</span>
+      <span class="workout__value">${workout.duration}</span>
+      <span class="workout__unit">min</span>
+    </div>
+    <div class="workout__details">
+      <span class="workout__icon">⚡️</span>
+      <span class="workout__value">${workout.pace}</span>
+      <span class="workout__unit">min/km</span>
+    </div>
+    <div class="workout__details">
+      <span class="workout__icon">🦶🏼</span>
+      <span class="workout__value">${workout.cadence}</span>
+      <span class="workout__unit">spm</span>
+    </div>
+    </li>`;
 
+      L.marker([lat, lng])
+        .addTo(map)
+        .bindPopup(
+          L.popup({
+            maxWidth: 250,
+            minWidth: 100,
+            autoClose: false,
+            closeOnClick: false,
+            className: "running-popup",
+          })
+        )
+        .setPopupContent("Workout")
+        .openPopup();
+    } else if (workout.type === "cycling") {
+      html = `<li class="workout workout--cycling" data-id=${workout.id}>
+     <h2 class="workout__title">${workout.description}</h2>
+     <div class="workout__details">
+       <span class="workout__icon">🚴‍♀️</span>
+       <span class="workout__value">${workout.distance}</span>
+       <span class="workout__unit">km</span>
+     </div>
+     <div class="workout__details">
+       <span class="workout__icon">⏱</span>
+       <span class="workout__value">${workout.duration}</span>
+       <span class="workout__unit">min</span>
+     </div>
+     <div class="workout__details">
+       <span class="workout__icon">⚡️</span>
+       <span class="workout__value">${workout.speed}</span>
+       <span class="workout__unit">km/h</span>
+     </div>
+     <div class="workout__details">
+       <span class="workout__icon">⛰</span>
+       <span class="workout__value">${workout.elevation}</span>
+       <span class="workout__unit">m</span>
+     </div>
+     </li>`;
+      L.marker([lat, lng])
+        .addTo(map)
+        .bindPopup(
+          L.popup({
+            maxWidth: 250,
+            minWidth: 100,
+            autoClose: false,
+            closeOnClick: false,
+            className: "running-popup",
+          })
+        )
+        .setPopupContent("Workout")
+        .openPopup();
+    }
+    form.insertAdjacentHTML("afterend", html);
+  }
   L.marker(coords)
     .addTo(map)
     .bindPopup("A pretty CSS popup.<br> Easily customizable.")
@@ -128,8 +208,7 @@ form.addEventListener("submit", function (e) {
     <span class="workout__unit">spm</span>
   </div>
   </li>`;
-  }
-  if (type === "cycling") {
+  } else if (type === "cycling") {
     const elevation = +inputElevation.value;
     workout = new Cycling([lat, lng], distance, duration, elevation);
 
@@ -190,9 +269,9 @@ inputType.addEventListener("change", function () {
 containerWorkouts.addEventListener("click", function (e) {
   const workoutEl = e.target.closest(".workout");
 
-  const workout = workouts.find((work) => work.id === workoutEl.dataset.id);
-
   if (!workoutEl) return;
+
+  const workout = workouts.find((work) => work.id === workoutEl.dataset.id);
 
   map.setView(workout.coords, 13, {
     animate: true,
