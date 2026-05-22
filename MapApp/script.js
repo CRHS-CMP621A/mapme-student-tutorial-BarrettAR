@@ -117,7 +117,7 @@ navigator.geolocation.getCurrentPosition(function (position) {
             className: "running-popup",
           })
         )
-        .setPopupContent("Workout")
+        .setPopupContent(workout.description)
         .openPopup();
     } else if (workout.type === "cycling") {
       html = `<li class="workout workout--cycling" data-id=${workout.id}>
@@ -252,7 +252,7 @@ form.addEventListener("submit", function (e) {
         className: "running-popup",
       })
     )
-    .setPopupContent("Workout")
+    .setPopupContent(workout.description)
     .openPopup();
   if (inputType.value == "cycling") {
     // This code will reset back to running with the correct cadence/elevation options.
